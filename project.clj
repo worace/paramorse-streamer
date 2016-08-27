@@ -4,6 +4,7 @@
   :license {:name "Eclipse Public License"
             :url "http://www.eclipse.org/legal/epl-v10.html"}
   :main paramorse-streamer.core
+  :min-lein-version "2.0.0"
   :uberjar-name "paramorse-streamer.jar"
   :profiles {:uberjar {:aot :all}}
   :dependencies [[org.clojure/clojure "1.7.0"]
