@@ -1,1 +1,1 @@
-web: java $JVM_OPTS -cp target/paramorse-streamer.jar
+web: java $JVM_OPTS -cp target/paramorse-streamer.jar clojure.main -m paramorse-streamer.core
