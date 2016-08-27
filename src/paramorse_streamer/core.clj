@@ -1,4 +1,5 @@
 (ns paramorse-streamer.core
+  (:gen-class)
   (require [org.httpkit.timer :as timer]
            [org.httpkit.client :as client]
            [org.httpkit.server :as http]
