@@ -117,23 +117,33 @@
         (recur (drop chunk-size msg))))))
 
 (defn with-params [request]
-  (let [qstring (:query-string request)]
-    (assoc request :params (apply hash-map (split qstring #"=")))))
+  (let [qstring (:query-string request)
+        params (split (str qstring) #"=")]
+    (if (even? (count params))
+      (assoc request :params (apply hash-map params))
+      (assoc request :params {}))))
 
 (defn handler [request]
   (let [request (with-params request)]
-    (println request)
     (http/with-channel (with-params request) channel
       (let [msg (clojure.string/replace #_"dog dog" (rand-nth texts) #"[^A-Za-z1-9 ]" "")]
         (println "sending msg" msg)
         (send-message channel
                       (encode-message (clojure.string/replace msg #"[^A-Za-z1-9 ]" ""))
-                      (max 1 (min 32 (Integer/parseInt (get-in request [:params "chunk_size"])))))))))
+                      (max 1 (min 32 (Integer. (or (get-in request [:params "chunk_size"])
+                                                   8)))))))))
 
 (defonce server (atom nil))
-(defn start! []
-  (when-let [close-fn @server] (close-fn))
-  (reset! server (http/run-server #'handler {:port 9292})))
+(defn stop! [] (when-let [close-fn @server] (close-fn)))
+(defn start!
+  ([] (start! 9292))
+  ([port]
+   (stop!)
+   (reset! server (http/run-server #'handler {:port port}))))
+
+(defn -main [& args]
+  (let [port (Integer. (get (System/getenv) "PORT" 9292))]
+    (start! port)))
 
 ;; (client/get "http://localhost:9292" {} (fn [resp] (println resp)))
 
