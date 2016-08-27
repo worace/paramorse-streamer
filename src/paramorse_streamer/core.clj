@@ -93,7 +93,6 @@
 (defn encode-letter [tones]
   (apply str (drop-last 1 (interleave (map tone-encodings tones)
                                       (repeat "0")))))
-
 ;; tone separated by 0
 ;; letter separated by 000
 ;; word separated by 0000000 (space)
@@ -117,14 +116,19 @@
         (http/send! channel (apply str (take chunk-size msg)) false)
         (recur (drop chunk-size msg))))))
 
+(defn with-params [request]
+  (let [qstring (:query-string request)]
+    (assoc request :params (apply hash-map (split qstring #"=")))))
+
 (defn handler [request]
-  (http/with-channel request channel
-    (println "got rec")
-    (let [msg (clojure.string/replace (rand-nth texts) #"[^A-Za-z1-9 ]" "")]
-      (println "sending msg" msg)
-      (send-message channel
-                    (encode-message (clojure.string/replace msg #"[^A-Za-z1-9 ]" ""))
-                    8))))
+  (let [request (with-params request)]
+    (println request)
+    (http/with-channel (with-params request) channel
+      (let [msg (clojure.string/replace #_"dog dog" (rand-nth texts) #"[^A-Za-z1-9 ]" "")]
+        (println "sending msg" msg)
+        (send-message channel
+                      (encode-message (clojure.string/replace msg #"[^A-Za-z1-9 ]" ""))
+                      (max 1 (min 32 (Integer/parseInt (get-in request [:params "chunk_size"])))))))))
 
 (defonce server (atom nil))
 (defn start! []

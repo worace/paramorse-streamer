@@ -35,7 +35,7 @@ end
 def read_message
   letters = []
   current_char = ""
-  stream_from("http://localhost:9292") do |chunk|
+  stream_from("http://localhost:9292?chunk_size=16") do |chunk|
     chunk.each_char do |bit|
       if current_char.end_with?("000")
         if current_char == "000" && bit == "0"
@@ -50,9 +50,9 @@ def read_message
         current_char += bit
       end
     end
-    letters << [current_char, bits_to_letters[current_char]]
-    print letters.last.last
   end
+  letters << [current_char, bits_to_letters[current_char]]
+  print letters.last.last
 end
 
 if __FILE__ == $0
