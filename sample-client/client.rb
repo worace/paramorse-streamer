@@ -35,7 +35,7 @@ end
 def read_message
   letters = []
   current_char = ""
-  stream_from("http://localhost:9292?chunk_size=16") do |chunk|
+  stream_from("http://floating-meadow-45907.herokuapp.com?chunk_size=8") do |chunk|
     chunk.each_char do |bit|
       if current_char.end_with?("000")
         if current_char == "000" && bit == "0"
